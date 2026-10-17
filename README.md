@@ -49,24 +49,27 @@ docker compose down                  # keep data; add -v to also delete the data
 nginx serves the React build and proxies `/api` to the backend, so the browser only talks to one origin.
 Secrets are read from `.env` files at runtime and are never baked into images or committed.
 
-## Deploy on a Hostinger VPS (HTTPS with your domain)
-Needs a **VPS** plan (shared hosting cannot run Docker). Caddy (in `docker-compose.yml`) obtains and renews free Let's Encrypt certificates automatically.
+## Deploy on a VPS
+Needs a **VPS** (shared hosting cannot run Docker). Two modes:
 
-1. **DNS:** at your domain registrar create an `A` record for your (sub)domain pointing to the VPS IP. Wait until `ping your-domain` shows that IP.
-2. **Firewall:** allow TCP **80** and **443** (and UDP 443) in Hostinger hPanel -> VPS -> Firewall. Port 80 must stay open for certificate issuance.
-3. On the server (Ubuntu): `curl -fsSL https://get.docker.com | sh`, then `git clone` this repo and `cd` into it.
-4. Create `.env` **once** (do not regenerate it later: Postgres keeps the first password in its volume):
-   ```bash
-   cat > .env <<EOF
-   POSTGRES_PASSWORD=$(openssl rand -hex 16)
-   DOMAIN=kural.example.com
-   EOF
-   ```
-5. Create `backend/.env` with `OPENAI_API_KEY`, `OPENAI_MODEL`, `SERPER_API_KEY` (see `backend/.env.example`).
-6. `docker compose up -d --build`, then open `https://your-domain`.
+**A. Server already has a reverse proxy on ports 80/443** (e.g. another app uses Traefik/Caddy/nginx) - the default.
+The site listens only on `127.0.0.1:${APP_PORT:-8081}`; add a route in your existing proxy for your hostname to that port.
+```bash
+git clone https://github.com/PrakashR97/ai-thirukkural.git && cd ai-thirukkural
+cat > .env <<EOF          # create ONCE: Postgres keeps the first password in its volume
+POSTGRES_PASSWORD=$(openssl rand -hex 16)
+APP_PORT=8081
+EOF
+cp backend/.env.example backend/.env && nano backend/.env   # OPENAI_API_KEY etc.
+docker compose up -d --build
+```
+Example nginx server block: `location / { proxy_pass http://127.0.0.1:8081; proxy_set_header Host $host; proxy_set_header X-Forwarded-For $remote_addr; proxy_read_timeout 120s; }`
+(`X-Forwarded-For` matters: the per-visitor rate limit uses it.)
 
-Without a domain leave `DOMAIN` unset: Caddy serves plain HTTP on port 80 at the server IP.
-Update later with `git pull && docker compose up -d --build`. Never run `docker compose down -v` in production (it deletes the database and certificates).
+**B. Nothing else uses 80/443** - let the bundled Caddy get free Let's Encrypt certificates:
+set `DOMAIN=kural.example.com` in `.env`, create the DNS `A` record to the server IP, open TCP 80/443 (+UDP 443), then `docker compose --profile caddy up -d --build`.
+
+Update later with `git pull && docker compose up -d --build`. Never run `docker compose down -v` in production (deletes the database).
 
 ## How AI usage is controlled
 - Browsing/searching never calls OpenAI. Opening a Kural calls `POST /api/kurals/{n}/explain`.
