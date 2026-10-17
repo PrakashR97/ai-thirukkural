@@ -25,6 +25,11 @@ class Settings(BaseSettings):
     dataset_path: Path = DATA_DIR / "thirukkural.json"
     chapters_path: Path = DATA_DIR / "chapters.json"
     request_timeout: float = 60.0
+    # Limits on NEW (paid) generations only; cached results are always free. 0 disables a limit.
+    rate_limit_per_hour: int = 10
+    daily_generation_cap: int = 300
+    # Trust X-Real-IP from the nginx proxy to identify visitors. Enable only behind a trusted proxy.
+    trust_proxy: bool = False
     max_correction_attempts: int = 1
 
     @field_validator("price_input_per_1m", "price_output_per_1m", mode="before")

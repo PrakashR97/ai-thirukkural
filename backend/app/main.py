@@ -9,6 +9,7 @@ from app.api.routes import router
 from app.config import Settings, get_settings
 from app.services.cache_service import CacheService
 from app.services.dataset_service import DatasetService
+from app.services.rate_limiter import RateLimiter
 from app.services.search_service import SearchService
 
 log = logging.getLogger("thirukkural")
@@ -28,6 +29,7 @@ def create_app(settings: Settings | None = None, runner=None) -> FastAPI:
         app.state.cache = CacheService(settings.db_path, settings.database_url)
         app.state.runner = runner or make_runner(settings)
         app.state.locks = {}
+        app.state.limiter = RateLimiter(settings.rate_limit_per_hour, settings.daily_generation_cap)
         if not settings.ai_configured:
             log.warning("OPENAI_API_KEY is not set: browsing works, AI generation is disabled.")
         yield

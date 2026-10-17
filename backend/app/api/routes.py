@@ -15,6 +15,14 @@ def _state(request: Request):
     return request.app.state
 
 
+def _visitor(request: Request) -> str:
+    if _state(request).settings.trust_proxy:  # set by nginx; only trusted behind the proxy
+        real = request.headers.get("x-real-ip")
+        if real:
+            return real.strip()
+    return request.client.host if request.client else "unknown"
+
+
 def _kural_or_404(request: Request, number: int) -> Kural:
     k = _state(request).ds.get(number)
     if not k:
@@ -96,6 +104,14 @@ async def explain(request: Request, number: int, regenerate: bool = False):
             if hit:
                 s.cache.log("cache", kural_number=number, model=model, cache_status="hit")
                 return ExplainResult(**{**hit, "cached": True})
+        allowed, retry_after, reason = s.limiter.acquire(_visitor(request))
+        if not allowed:
+            s.cache.log("rate_limited", kural_number=number, model=model, success=False, error=reason)
+            msg = ("இன்றைய புதிய விளக்கங்களுக்கான வரம்பு முடிந்துவிட்டது. நாளை மீண்டும் முயலவும். (Daily generation limit reached.)"
+                   if reason == "daily" else
+                   "புதிய குறள் விளக்கங்களுக்கான வரம்பை எட்டிவிட்டீர்கள். சிறிது நேரம் கழித்து முயலவும். "
+                   "(Too many new generations; already-viewed Kurals still work.)")
+            raise HTTPException(429, msg, headers={"Retry-After": str(retry_after)})
         s.cache.log("cache", kural_number=number, model=model, cache_status="miss")
 
         def sink(kind: str, u: Usage, ok: bool):

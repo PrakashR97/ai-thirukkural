@@ -20,6 +20,7 @@ services:
     env_file: ./backend/.env        # OPENAI_API_KEY etc. Never baked into the image.
     environment:
       DATABASE_URL: postgresql://thirukkural:${POSTGRES_PASSWORD}@db:5432/thirukkural
+      TRUST_PROXY: "true"   # backend is only reachable through nginx, which sets X-Real-IP
     depends_on:
       db:
         condition: service_healthy
