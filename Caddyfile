@@ -1,0 +1,5 @@
+# DOMAIN comes from .env (e.g. kural.example.com). ":80" = plain HTTP with no domain.
+{$DOMAIN} {
+	encode gzip
+	reverse_proxy frontend:80
+}

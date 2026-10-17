@@ -49,10 +49,24 @@ docker compose down                  # keep data; add -v to also delete the data
 nginx serves the React build and proxies `/api` to the backend, so the browser only talks to one origin.
 Secrets are read from `.env` files at runtime and are never baked into images or committed.
 
-## Deploy on a Hostinger VPS
-Needs a **VPS** plan (shared/web hosting cannot run Docker). On the server (Ubuntu): install Docker, clone this repo,
-create the two `.env` files as above, run `docker compose up -d --build`, and point your domain's A record at the VPS IP.
-Add HTTPS (e.g. Caddy or certbot) in front before sharing the site publicly.
+## Deploy on a Hostinger VPS (HTTPS with your domain)
+Needs a **VPS** plan (shared hosting cannot run Docker). Caddy (in `docker-compose.yml`) obtains and renews free Let's Encrypt certificates automatically.
+
+1. **DNS:** at your domain registrar create an `A` record for your (sub)domain pointing to the VPS IP. Wait until `ping your-domain` shows that IP.
+2. **Firewall:** allow TCP **80** and **443** (and UDP 443) in Hostinger hPanel -> VPS -> Firewall. Port 80 must stay open for certificate issuance.
+3. On the server (Ubuntu): `curl -fsSL https://get.docker.com | sh`, then `git clone` this repo and `cd` into it.
+4. Create `.env` **once** (do not regenerate it later: Postgres keeps the first password in its volume):
+   ```bash
+   cat > .env <<EOF
+   POSTGRES_PASSWORD=$(openssl rand -hex 16)
+   DOMAIN=kural.example.com
+   EOF
+   ```
+5. Create `backend/.env` with `OPENAI_API_KEY`, `OPENAI_MODEL`, `SERPER_API_KEY` (see `backend/.env.example`).
+6. `docker compose up -d --build`, then open `https://your-domain`.
+
+Without a domain leave `DOMAIN` unset: Caddy serves plain HTTP on port 80 at the server IP.
+Update later with `git pull && docker compose up -d --build`. Never run `docker compose down -v` in production (it deletes the database and certificates).
 
 ## How AI usage is controlled
 - Browsing/searching never calls OpenAI. Opening a Kural calls `POST /api/kurals/{n}/explain`.
