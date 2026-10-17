@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     request_timeout: float = 60.0
     # Limits on NEW (paid) generations only; cached results are always free. 0 disables a limit.
     rate_limit_per_hour: int = 10
-    daily_generation_cap: int = 300
+    daily_generation_cap: int = 30
     # Trust X-Real-IP from the nginx proxy to identify visitors. Enable only behind a trusted proxy.
     trust_proxy: bool = False
     max_correction_attempts: int = 1

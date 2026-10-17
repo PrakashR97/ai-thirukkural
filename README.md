@@ -63,7 +63,7 @@ Add HTTPS (e.g. Caddy or certbot) in front before sharing the site publicly.
 - `GET /api/usage` reports request count, tokens, cache hits/misses, failures, and estimated cost
   (only if `PRICE_INPUT_PER_1M` / `PRICE_OUTPUT_PER_1M` are set).
 - Rate limits apply only to NEW paid generations (cached Kurals are free and unlimited): `RATE_LIMIT_PER_HOUR` per visitor (default 10)
-  and `DAILY_GENERATION_CAP` for the whole site (default 300); `0` disables a limit. Over the limit returns HTTP 429 with a Tamil message.
+  and `DAILY_GENERATION_CAP` for the whole site (default 30); `0` disables a limit. Over the limit returns HTTP 429 with a Tamil message.
   Visitors are identified by IP (via nginx's `X-Real-IP`, trusted only when `TRUST_PROXY=true`, which compose sets). In-memory, single worker.
 - The Review Agent is an AI consistency check, not verification against authoritative commentary.
 
