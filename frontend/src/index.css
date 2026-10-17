@@ -1,0 +1,72 @@
+/* Strict two-colour palette: cream + dark green, plus tints of those two only. */
+:root {
+  --cream: #FAF7F0;
+  --green: #244C3A;
+  --green-tint: color-mix(in srgb, var(--green) 8%, var(--cream));
+  --green-soft: color-mix(in srgb, var(--green) 20%, var(--cream));
+  --green-mid: color-mix(in srgb, var(--green) 70%, var(--cream));
+  --cream-on-green: color-mix(in srgb, var(--cream) 85%, var(--green));
+  font-family: 'Noto Sans Tamil', 'Tamil Sangam MN', 'Latha', 'Nirmala UI', system-ui, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--cream); color: var(--green); line-height: 1.8; font-size: 18px; }
+a { color: var(--green); }
+h1, h2, h3 { line-height: 1.4; margin: 0 0 .5rem; }
+button, input, select { font: inherit; color: var(--green); }
+:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
+
+.header { background: var(--green); color: var(--cream); padding: 1.25rem 1rem; }
+.header a { color: var(--cream); text-decoration: none; }
+.header .inner, .container { max-width: 960px; margin: 0 auto; padding: 0 1rem; }
+.header .inner { display: flex; flex-wrap: wrap; gap: .25rem 1rem; align-items: baseline; justify-content: space-between; padding: 0; }
+.header h1 { margin: 0; font-size: 1.6rem; }
+.count { color: var(--cream-on-green); }
+.container { padding-top: 1.25rem; padding-bottom: 3rem; }
+
+.footer { border-top: 2px solid var(--green); background: var(--green-tint); text-align: center; font-size: .95rem; }
+.footer .container { padding-top: 1rem; padding-bottom: 1rem; }
+.footer p { margin: .15rem 0; overflow-wrap: anywhere; }
+
+.search { display: flex; gap: .5rem; margin-bottom: 1rem; }
+.search input { flex: 1; min-width: 0; padding: .6rem .8rem; border: 2px solid var(--green); background: var(--cream); border-radius: 6px; }
+.btn { background: var(--green); color: var(--cream); border: 2px solid var(--green); border-radius: 6px; padding: .55rem 1rem; cursor: pointer; }
+.btn:hover:not(:disabled) { background: var(--cream); color: var(--green); }
+.btn.secondary { background: var(--cream); color: var(--green); }
+.btn.secondary:hover:not(:disabled) { background: var(--green-soft); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+
+.filters { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; align-items: center; }
+
+.filters select { padding: .5rem; border: 2px solid var(--green); background: var(--cream); border-radius: 6px; max-width: 100%; }
+
+.card { display: block; text-decoration: none; border: 1px solid var(--green-soft); background: var(--green-tint); border-radius: 8px; padding: .8rem 1rem; margin-bottom: .75rem; }
+.card:hover { border-color: var(--green); }
+.card .num { font-size: .9rem; color: var(--green-mid); }
+.card .verse { white-space: pre-line; font-weight: 600; margin: 0; }
+
+.pager { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; justify-content: center; margin-top: 1.25rem; }
+
+.panel { border: 1px solid var(--green-soft); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.25rem; background: var(--cream); }
+.panel.verse-panel { background: var(--green); color: var(--cream); }
+.panel.verse-panel .meta { color: var(--cream-on-green); }
+.verse-text { white-space: pre-line; font-size: 1.35rem; font-weight: 700; margin: .5rem 0 0; }
+.meta { color: var(--green-mid); font-size: .95rem; }
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td { text-align: left; vertical-align: top; padding: .5rem .6rem; border-bottom: 1px solid var(--green-soft); }
+.table th { background: var(--green-tint); }
+.table-wrap { overflow-x: auto; }
+.story { white-space: pre-line; }
+.note { border-left: 4px solid var(--green); background: var(--green-tint); padding: .6rem .9rem; border-radius: 0 6px 6px 0; font-size: .95rem; }
+
+.state { border: 2px dashed var(--green-soft); border-radius: 8px; padding: 1.25rem; text-align: center; }
+.state.error { border: 2px solid var(--green); background: var(--green-tint); }
+.spinner { width: 1.6rem; height: 1.6rem; border: 3px solid var(--green-soft); border-top-color: var(--green); border-radius: 50%; display: inline-block; vertical-align: middle; margin-right: .6rem; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
+
+@media (max-width: 600px) {
+  body { font-size: 17px; }
+  .header h1 { font-size: 1.35rem; }
+  .verse-text { font-size: 1.2rem; }
+}
