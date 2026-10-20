@@ -1,0 +1,11 @@
+# Optional overlay for servers where Traefik (Docker provider, host network) already owns ports 80/443.
+# Use: docker compose -f docker-compose.yml -f docker-compose.traefik.yml up -d --build
+# Needs APP_HOST in .env (e.g. kural.mycoolrag.tech). Entrypoint/resolver names match the server's Traefik.
+services:
+  frontend:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.thirukkural.rule=Host(`${APP_HOST:?set APP_HOST in .env}`)
+      - traefik.http.routers.thirukkural.entrypoints=websecure
+      - traefik.http.routers.thirukkural.tls.certresolver=letsencrypt
+      - traefik.http.services.thirukkural.loadbalancer.server.port=80

@@ -66,6 +66,9 @@ docker compose up -d --build
 Example nginx server block: `location / { proxy_pass http://127.0.0.1:8081; proxy_set_header Host $host; proxy_set_header X-Forwarded-For $remote_addr; proxy_read_timeout 120s; }`
 (`X-Forwarded-For` matters: the per-visitor rate limit uses it.)
 
+**A2. Traefik already on the server (Docker provider):** add `APP_HOST=kural.your-domain` to `.env` and start with
+`docker compose -f docker-compose.yml -f docker-compose.traefik.yml up -d --build` (labels use entrypoint `websecure`, resolver `letsencrypt`; adjust in that file if yours differ).
+
 **B. Nothing else uses 80/443** - let the bundled Caddy get free Let's Encrypt certificates:
 set `DOMAIN=kural.example.com` in `.env`, create the DNS `A` record to the server IP, open TCP 80/443 (+UDP 443), then `docker compose --profile caddy up -d --build`.
 
